@@ -134,7 +134,6 @@ void UserData::StateShow()
 }
 int UserData::StateCheck(string name)
 {
-	cout<<"StateCheck"<<endl;
 	sprintf(sql,"select * from state where name = '%s'",name.c_str());
 	mysql_real_query(pcon,sql,strlen(sql));
 	pres = mysql_store_result(pcon);
@@ -156,19 +155,24 @@ int UserData::StateGetLength()
 	 sprintf(sql,"select * from state");
 	 mysql_real_query(pcon,sql,strlen(sql));
 	 pres = mysql_store_result(pcon);
-	 //int len =  mysql_num_fields(pres);
 	 int len =  mysql_num_rows(pres); //得到记录的行数
-	 cout<<"len:"<<len<<endl;
 	 return len;
 }	
-int UserData::StateGetFd(int index)
+bool UserData::StateGetFd()
 {
-	sprintf(sql,"select * from state");
-	mysql_real_query(pcon,sql,strlen(sql));
-	pres = mysql_store_result(pcon);
-	while(row = mysql_fetch_row(pres))
+	bool bret = false;
+	do
 	{
-		return atoi(row[index+1]);
-	}
-	return 0;
-}
+		sprintf(sql,"select * from state");
+		mysql_real_query(pcon,sql,strlen(sql));
+		pres = mysql_store_result(pcon);
+		int i = 0;
+		while(row = mysql_fetch_row(pres))
+		{
+			arrfd[i++] = atoi(row[1]);		
+			cout<<"arrfd[i]"<<arrfd[i-1]<<endl;;
+		}
+		bret = true;
+	}while(0);
+	return bret;
+} 

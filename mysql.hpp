@@ -34,7 +34,7 @@ public:
 	void StateShow();
 	int StateCheck(string name);
 	int StateGetLength();
-	int StateGetFd(int index);
+	bool StateGetFd();
 private:
 
     char sql[1024];
@@ -44,6 +44,8 @@ private:
 	MYSQL*  pcon;
 	MYSQL_RES* pres;
     MYSQL_ROW row; 
+public:
+	int arrfd[1024];
 };
 
 #endif

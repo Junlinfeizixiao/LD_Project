@@ -37,10 +37,12 @@ void* ReadThread(void *arg)
 	{
 		char recvbuf[1024] = {0};
 		int size = 0;
-
+        string loginname;
+		
 		Json::Reader reader;//XXX    //
 		Json::Value root;	//XXX
 		Json::Value response;//XXX
+		
 		size = recv(clientfd,recvbuf,1024,0);
 		if(size <= 0)
 		{
@@ -80,6 +82,7 @@ void* ReadThread(void *arg)
 				{	
 					response["msgtype"] = EN_MSG_ACK;
 					string name = root["name"].asString();
+
 					string pwd = root["pwd"].asString();
 					string phone = root["phone"].asString();
 					if(!user.UserCheck(name))
@@ -100,30 +103,33 @@ void* ReadThread(void *arg)
 					response["msgtype"] = EN_MSG_CHAT;
 					string name = root["from"].asString();
 					string msg = root["msg"].asString();
-					int Linefd = 0;
 					if(strstr(recvbuf,"\"to\" :") == 0)
 					{
-						cout<<"QQ群"<<endl;
 						
-						response["from"] = name;
+					    string realname = name + "(public)";
+						response["from"] = realname;
 						response["msg"] = msg;
 						
 						int len = user.StateGetLength();
-						cout<<"len:"<<len<<endl;
+						
+						user.StateGetFd();
+						int fdsarr[1024] = {0};
 						for(int i = 0; i < len; i++)
 						{
-							Linefd = user.StateGetFd(i);
-							cout<<"Linefd:"<<Linefd<<endl;
-							if(Linefd != user.StateCheck(name))
+							fdsarr[i] = user.arrfd[i];
+						}
+						for(int j = 0; j < len; j++)
+						{
+							if(fdsarr[j] != user.StateCheck(name))
 							{ 
-								send(Linefd,response.toStyledString().c_str(),strlen    (response.toStyledString().c_str())+1,0);
+								send(fdsarr[j],response.toStyledString().c_str(),strlen    (response.toStyledString().c_str())+1,0);
 							}
 						}
 					}
 					else
 					{
 						string obj = root["to"].asString();				
-						Linefd = user.StateCheck(obj);
+						int Linefd = user.StateCheck(obj);
 						cout<<Linefd<<endl;
 						response["from"] = name;
 						if(Linefd != 0)
